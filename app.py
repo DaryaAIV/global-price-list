@@ -226,7 +226,7 @@ def render_cart_header():
                 st.session_state['cart'] = []
                 st.rerun()
 
-# ------------- component: render single product row ----------------
+# ------------- component: render single product row (Card Style) ----------------
 def render_product_row(row, unique_key):
     # using container for custom styling
     container = st.container()
