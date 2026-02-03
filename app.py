@@ -5,7 +5,7 @@ import os
 import re
 
 # --- Page Config & CSS Styling ---
-st.set_page_config(layout="wide", page_title="Global Meteori Price List")
+st.set_page_config(layout="centered", page_title="Global Meteori Price List")
 
 st.markdown("""
 <style>
@@ -23,10 +23,11 @@ st.markdown("""
     /* --- Product Card Styling --- */
     .product-container {
         background-color: #f8f9fa; /* Very light grey/white background */
-        border-radius: 10px;
+        border-radius: 12px; /* Softer corners for mobile */
         padding: 10px;
         margin-bottom: 8px;
         border-right: 5px solid #a6c1ee; /* Light blue accent border */
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Subtle shadow */
     }
     
     .product-name { 
@@ -34,6 +35,7 @@ st.markdown("""
         font-weight: bold; 
         color: #2c3e50; /* Dark blue-grey text */
         margin-bottom: 2px;
+        line-height: 1.2;
     }
     
     .product-price { 
@@ -43,8 +45,18 @@ st.markdown("""
     }
     
     /* "Show More" Button Styling */
-    .stButton button { width: 100%; background-color: #e3f2fd; color: #1565c0; border: none; }
+    .stButton button { width: 100%; background-color: #e3f2fd; color: #1565c0; border: none; padding: 0.5rem; }
     .stButton button:hover { background-color: #bbdefb; color: #0d47a1; }
+    
+    /* CHANGE 2: Mobile Optimizations */
+    /* Hide the top colored decoration bar of Streamlit to save space */
+    header {visibility: hidden;}
+    
+    /* Mobile specific adjustments for font sizes */
+    @media only screen and (max-width: 600px) {
+        .product-name { font-size: 16px; }
+        .product-price { font-size: 15px; }
+    }
 
 </style>
 """, unsafe_allow_html=True)
@@ -183,7 +195,7 @@ def sidebar_logic():
 def render_product_row(row, unique_key):
     # using container for custom styling
     container = st.container()
-    col1, col2, col3 = container.columns([4, 1.5, 1.5])
+    col1, col2, col3 = container.columns([3.5, 1.3, 1.2])
     
     with col1:
         # HTML Card display
@@ -202,7 +214,7 @@ def render_product_row(row, unique_key):
     with col3:
         st.write("") 
         st.write("") 
-        if st.button("הוסף ➕", key=f"btn_{unique_key}"):
+        if st.button("הוסף", key=f"btn_{unique_key}"):
             st.session_state['cart'].append({"מוצר": row['שם פריט'], "כמות": qty, "מחיר": row['מחיר']})
             st.toast(f"✅ {row['שם פריט']} נוסף!")
 
