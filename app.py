@@ -5,7 +5,7 @@ import os
 import re
 
 # --- Page Config & CSS Styling ---
-st.set_page_config(layout="centered", page_title="Global Meteori Price List")
+st.set_page_config(layout="centered", page_title="Global Meteori Price List", initial_sidebar_state="collapsed")
 
 st.markdown("""
 <style>
@@ -138,7 +138,7 @@ def clean_price_value(price_str):
     except: return 999999.0
 
 # data loading
-@st.cache_data
+@st.cache_data(show_spinner="טוען מחירון...")
 def get_data():
     csv_file = 'products_final.csv'
     pdf_file = 'glob.pdf'
@@ -211,7 +211,7 @@ def sidebar_logic():
             for item in st.session_state['cart']:
                 msg += f"🔹 {item['מוצר']} - {item['כמות']} יח'\n"
             msg += "\nתודה!"
-            st.sidebar.text_area("העתק:", value=msg, height=300)
+            st.sidebar.code(msg, language="text")
             
         # clear cart
         if st.sidebar.button("🗑️ רוקן"):
