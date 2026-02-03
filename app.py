@@ -217,6 +217,10 @@ def render_cart_header():
                     total += price_clean * int(item['כמות'])
                 except: pass
             
+            # Display Total
+            st.markdown(f"<h3 style='text-align: left; color: #2e7d32;'>סה\"כ: ₪{total:,.2f}</h3>", unsafe_allow_html=True)
+            msg += f"\nסה\"כ לתשלום: ₪{total:,.2f}\n"
+            
             msg += "\nתודה!"
             
             st.markdown("### העתק רשימה:")
@@ -262,8 +266,14 @@ def main():
     if df.empty: return
 
     # search section
+    # search section
     st.subheader("🔍 חיפוש מוצר")
-    search_query = st.text_input("הקלד שם מוצר...", "").strip()
+    
+    col_search, col_sort = st.columns([3, 1])
+    with col_search:
+        search_query = st.text_input("הקלד שם מוצר...", "").strip()
+    with col_sort:
+        sort_option = st.selectbox("מיון", ["מחיר (נמוך-גבוה)", "מחיר (גבוה-נמוך)", "שם (א-ת)"], label_visibility="collapsed")
     
     # reset limit if search changes
     if search_query != st.session_state['last_search']:
@@ -273,7 +283,14 @@ def main():
     if search_query:
         # filter by search
         results = df[df['שם פריט'].str.contains(search_query, na=False)]
-        results = results.sort_values(by='price_val', ascending=True)
+        
+        # Apply Sorting
+        if sort_option == "מחיר (נמוך-גבוה)":
+            results = results.sort_values(by='price_val', ascending=True)
+        elif sort_option == "מחיר (גבוה-נמוך)":
+            results = results.sort_values(by='price_val', ascending=False)
+        else:
+            results = results.sort_values(by='שם פריט', ascending=True)
         
         if not results.empty:
             st.info(f"נמצאו {len(results)} תוצאות")
@@ -307,7 +324,14 @@ def main():
 
             if selected_cat and selected_cat != "בחר...":
                 cat_df = df[df['קטגוריה'] == selected_cat].copy()
-                cat_df = cat_df.sort_values(by='price_val', ascending=True)
+                
+                # Apply Sorting to Category view as well
+                if sort_option == "מחיר (נמוך-גבוה)":
+                    cat_df = cat_df.sort_values(by='price_val', ascending=True)
+                elif sort_option == "מחיר (גבוה-נמוך)":
+                    cat_df = cat_df.sort_values(by='price_val', ascending=False)
+                else:
+                    cat_df = cat_df.sort_values(by='שם פריט', ascending=True)
                 
                 st.markdown(f"**מציג {len(cat_df)} מוצרים בקטגוריית {selected_cat}:**")
                 st.write("") # Spacer
