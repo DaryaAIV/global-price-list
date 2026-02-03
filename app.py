@@ -251,6 +251,7 @@ def render_product_row(row, unique_key):
             if st.button("הוסף", key=f"btn_{unique_key}"):
                 st.session_state['cart'].append({"מוצר": row['שם פריט'], "כמות": qty, "מחיר": row['מחיר']})
                 st.toast(f"✅ {row['שם פריט']} נוסף!", icon="🛒")
+                st.rerun()
 
 # ------------------ main application -------------------
 def main():
