@@ -195,31 +195,38 @@ def get_data():
             return pd.DataFrame()
     return pd.DataFrame()
 
-# -------------- sidebar logic (cart) --------------
-def sidebar_logic():
-    st.sidebar.title("🛒 הזמנה")
-    if not st.session_state['cart']:
-        st.sidebar.info("העגלה ריקה")
+# -------------- Cart Logic (Top Action Bar) --------------
+def render_cart_header():
+    count = len(st.session_state['cart'])
+    if count == 0:
+        st.info("🛒 העגלה ריקה")
     else:
-        st.sidebar.success(f"{len(st.session_state['cart'])} פריטים")
-        cart_df = pd.DataFrame(st.session_state['cart'])
-        st.sidebar.dataframe(cart_df[['מוצר', 'כמות']], hide_index=True)
-        
-        # generate WhatsApp message
-        if st.sidebar.button("📝 צור הודעה"):
+        # Create an expander for the cart
+        with st.expander(f"🛒 עגלת קניות ({count} פריטים)", expanded=False):
+            cart_df = pd.DataFrame(st.session_state['cart'])
+            st.dataframe(cart_df[['מוצר', 'כמות', 'מחיר']], hide_index=True, use_container_width=True)
+            
+            # Message Generation & Copy
             msg = "*היי, הזמנה חדשה:*\n\n"
+            total = 0
             for item in st.session_state['cart']:
                 msg += f"🔹 {item['מוצר']} - {item['כמות']} יח'\n"
-            msg += "\nתודה!"
-            st.sidebar.code(msg, language="text")
+                # try to sum up if price is numeric
+                try:
+                    price_clean = float(str(item['מחיר']).replace('₪', '').replace(',', '').strip())
+                    total += price_clean * int(item['כמות'])
+                except: pass
             
-        # clear cart
-        if st.sidebar.button("🗑️ רוקן"):
-            st.session_state['cart'] = []
-            st.rerun()
+            msg += "\nתודה!"
+            
+            st.markdown("### העתק רשימה:")
+            st.code(msg, language="text")
+            
+            if st.button("🗑️ רוקן עגלה", key="clear_cart_top"):
+                st.session_state['cart'] = []
+                st.rerun()
 
 # ------------- component: render single product row ----------------
-@st.fragment
 def render_product_row(row, unique_key):
     # using container for custom styling
     container = st.container()
@@ -247,7 +254,7 @@ def render_product_row(row, unique_key):
 
 # ------------------ main application -------------------
 def main():
-    sidebar_logic()
+    render_cart_header()
     st.title("🔎 מחירון גלובל מטאורי")
     
     df = get_data()
