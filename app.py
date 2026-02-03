@@ -20,43 +20,49 @@ st.markdown("""
     /* Sidebar alignment */
     section[data-testid="stSidebar"] { direction: rtl; text-align: right; }
     
-    /* --- Product Card Styling --- */
-    .product-container {
-        background-color: #f8f9fa; /* Very light grey/white background */
-        border-radius: 12px; /* Softer corners for mobile */
-        padding: 10px;
-        margin-bottom: 8px;
-        border-right: 5px solid #a6c1ee; /* Light blue accent border */
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Subtle shadow */
+    /* Hide the top colored decoration bar of Streamlit to save space */
+    header {visibility: hidden;}
+
+    /* --- Product Card Styling (New Design) --- */
+    .product-card {
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05); /* Soft shadow */
+        text-align: center; /* Center everything in mobile */
     }
     
     .product-name { 
         font-size: 18px; 
         font-weight: bold; 
         color: #2c3e50; /* Dark blue-grey text */
-        margin-bottom: 2px;
+        margin-bottom: 5px;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+        justify_content: center;
         line-height: 1.2;
     }
     
     .product-price { 
-        font-size: 16px; 
+        font-size: 18px; 
         color: #2e7d32; /* Soft green for price */
         font-weight: bold;
+        margin-bottom: 10px;
     }
     
-    /* "Show More" Button Styling */
-    .stButton button { width: 100%; background-color: #e3f2fd; color: #1565c0; border: none; padding: 0.5rem; }
-    .stButton button:hover { background-color: #bbdefb; color: #0d47a1; }
-    
-    /* CHANGE 2: Mobile Optimizations */
-    /* Hide the top colored decoration bar of Streamlit to save space */
-    header {visibility: hidden;}
-    
-    /* Mobile specific adjustments for font sizes */
-    @media only screen and (max-width: 600px) {
-        .product-name { font-size: 16px; }
-        .product-price { font-size: 15px; }
+    /* Button Styling */
+    .stButton button { 
+        width: 100%; 
+        background-color: #1976d2; 
+        color: white; 
+        border: none; 
+        padding: 0.5rem; 
+        border-radius: 20px;
     }
+    .stButton button:hover { background-color: #1565c0; }
 
 </style>
 """, unsafe_allow_html=True)
@@ -191,37 +197,37 @@ def sidebar_logic():
             st.session_state['cart'] = []
             st.rerun()
 
-# ------------- component: render single product row ----------------
+# ------------- component: render single product row (Card Style) ----------------
 def render_product_row(row, unique_key):
     # using container for custom styling
-    container = st.container()
-    col1, col2, col3 = container.columns([3.5, 1.3, 1.2])
-    
-    with col1:
+    with st.container():
         # HTML Card display
         st.markdown(f"""
-        <div class="product-container">
+        <div class="product-card">
             <div class="product-name">{row['שם פריט']}</div>
             <div class="product-price">{row['מחיר']}</div>
         </div>
         """, unsafe_allow_html=True)
         
-    with col2:
-        st.write("") # spacer
-        st.write("") 
-        qty = st.number_input("כמות", min_value=1, value=1, key=f"q_{unique_key}", label_visibility="collapsed")
+        # input and button below the card
+        c1, c2 = st.columns([1, 2])
         
-    with col3:
-        st.write("") 
-        st.write("") 
-        if st.button("הוסף", key=f"btn_{unique_key}"):
-            st.session_state['cart'].append({"מוצר": row['שם פריט'], "כמות": qty, "מחיר": row['מחיר']})
-            st.toast(f"✅ {row['שם פריט']} נוסף!")
+        with c1:
+             qty = st.number_input("qty", min_value=1, value=1, key=f"q_{unique_key}", label_visibility="collapsed")
+             
+        with c2:
+             if st.button("Add to Cart 🛒", key=f"btn_{unique_key}"):
+                st.session_state['cart'].append({"מוצר": row['שם פריט'], "כמות": qty, "מחיר": row['מחיר']})
+                st.toast(f"✅ {row['שם פריט']} נוסף!")
+        
+        st.write("") # small spacer
 
 # ------------------ main application -------------------
 def main():
     sidebar_logic()
-    st.title("🔎 מחירון גלובל מטאורי")
+    
+    # Centered Title
+    st.markdown("<h1 style='text-align: center;'>🔎 מחירון גלובל מטאורי</h1>", unsafe_allow_html=True)
     
     df = get_data()
     if df.empty: return
